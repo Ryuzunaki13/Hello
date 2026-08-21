@@ -3,194 +3,156 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Quick RSVP</title>
-  <meta name="description" content="Minimal RSVP flow — one question per screen, polished design." />
+  <title>Sweet RSVP</title>
+  <meta name="description" content="A romantic RSVP flow — one question per screen, soft design." />
   <style>
-    /* Clean modern design */
+    /* Romantic theme */
     :root{
-      --bg-1: #0f1724; /* deep */
-      --bg-2: #0b2447; /* accent dark */
-      --card: #ffffff;
-      --accent: #06b6d4; /* teal */
-      --accent-2: #7c3aed; /* purple */
-      --muted: #94a3b8;
-      --glass: rgba(255,255,255,0.06);
-      --radius: 14px;
-      --shadow: 0 12px 40px rgba(2,6,23,0.4);
+      --bg1: #fff0f6; /* very light pink */
+      --card: rgba(255,255,255,0.85);
+      --rose1: #ff6b9f; /* rose */
+      --rose2: #ff9ccf; /* lighter */
+      --accent: #ef476f;
+      --muted: #6b4b57;
+      --shadow: 0 14px 40px rgba(14,20,30,0.08);
+      --radius:18px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;color: #0b1220}
-    body{background:linear-gradient(180deg,var(--bg-1),#07102a 60%);display:flex;align-items:center;justify-content:center;padding:32px}
+    html,body{height:100%;margin:0;font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, system-ui; background: linear-gradient(180deg,#fff8fb 0%, #fff0f6 100%); color:#2b1b24; -webkit-font-smoothing:antialiased}
 
-    .stage{width:100%;max-width:760px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03);color:whitesmoke}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+    .stage{width:100%;max-width:720px;background:var(--card);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);border:1px solid rgba(235,157,178,0.18)}
 
-    header{display:flex;align-items:center;gap:14px}
-    .brand{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:700;color:#061124}
-    h1{margin:0;font-size:18px}
+    header{display:flex;gap:14px;align-items:center}
+    .crest{width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,var(--rose1),var(--rose2));display:grid;place-items:center;color:white;font-weight:700;font-size:20px}
+    h1{margin:0;font-size:20px}
     p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
 
-    .card{margin-top:18px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));padding:22px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);min-height:170px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+    .card{margin-top:18px;padding:22px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.88));min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(239,107,159,0.06)}
 
-    .question{font-size:20px;font-weight:600;margin:0 0 12px;text-align:center}
+    .question{font-family: Georgia, 'Times New Roman', serif; font-size:22px;color:#3a1f2b;margin:0 0 12px;text-align:center}
 
-    .options{display:flex;gap:12px;width:100%;max-width:620px}
-    .btn{flex:1;padding:14px 16px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021028;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(10,20,30,0.18);transition:transform .12s ease,opacity .12s}
+    .options{display:flex;gap:12px;width:100%;max-width:660px}
+    .btn{flex:1;padding:14px 16px;border-radius:12px;border:0;background:linear-gradient(90deg,var(--rose1),var(--rose2));color:white;font-weight:700;cursor:pointer;box-shadow:0 8px 26px rgba(239,107,159,0.12);transition:transform .12s ease,opacity .12s}
     .btn:active{transform:translateY(1px)}
-    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04);box-shadow:none}
+    .btn.ghost{background:transparent;color:var(--rose1);border:1px solid rgba(239,107,159,0.12);box-shadow:none}
 
-    .input{width:100%;max-width:520px;margin-top:12px}
-    input[type=text], textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(2,6,23,0.25);color:white}
+    .input{width:100%;max-width:560px;margin-top:12px}
+    input[type=text], textarea{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(235,157,178,0.18);background:rgba(255,245,248,0.9);color:#3a1f2b}
     textarea{min-height:88px}
 
-    .footer{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
+    .progress{display:flex;gap:8px;justify-content:center;margin-top:14px}
+    .dot{width:10px;height:10px;border-radius:10px;background:rgba(235,157,178,0.18)}
+    .dot.active{background:linear-gradient(90deg,var(--rose1),var(--rose2));box-shadow:0 8px 20px rgba(239,107,159,0.14)}
 
-    .progress{display:flex;gap:6px;justify-content:center;margin-top:14px}
-    .dot{width:8px;height:8px;border-radius:8px;background:rgba(255,255,255,0.06)}
-    .dot.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 6px 16px rgba(124,58,237,0.14)}
+    .heart{display:inline-block;margin-left:8px;transform:translateY(-1px)}
+
+    .footer{margin-top:16px;font-size:13px;color:var(--muted);text-align:center}
 
     @media (max-width:640px){
       .options{flex-direction:column}
+      .card{padding:16px}
+      .crest{width:48px;height:48px}
+    }
+
+    /* subtle heartbeat animation for selected button */
+    .pulse{animation:heartbeat 1.2s infinite}
+    @keyframes heartbeat{
+      0%{transform:scale(1)}
+      25%{transform:scale(1.03)}
+      50%{transform:scale(1)}
+      75%{transform:scale(1.03)}
+      100%{transform:scale(1)}
     }
   </style>
 </head>
 <body>
-  <main class="stage" role="main">
-    <header>
-      <div class="brand" aria-hidden>RS</div>
-      <div>
-        <h1>Quick RSVP</h1>
-        <p class="lead">One question per screen — fast and simple.</p>
+  <main class="wrap">
+    <section class="stage" role="main">
+      <header>
+        <div class="crest" aria-hidden>💌</div>
+        <div>
+          <h1>Sweet RSVP <span class="heart">❤</span></h1>
+          <p class="lead">A gentle invite — respond with a click.</p>
+        </div>
+      </header>
+
+      <div class="card" id="card" aria-live="polite">
+        <!-- UI renders here -->
       </div>
-    </header>
 
-    <section class="card" id="card" aria-live="polite">
-      <!-- UI is rendered here -->
+      <div class="progress" id="progress" aria-hidden></div>
+
+      <p class="footer">Responses open your mail client and are addressed to a single recipient.</p>
     </section>
-
-    <div class="progress" id="progress" aria-hidden></div>
-
-    <p class="footer">Responses open your mail client and are addressed to a single recipient.</p>
   </main>
 
   <script>
     const ORGANISER = 'rafaelllaban1@gmail.com';
-
     const card = document.getElementById('card');
     const progress = document.getElementById('progress');
-
     const steps = ['free','option','custom','place','message'];
     let idx = 0;
-    const state = { choice: null, place: '', message: '' };
+    const state = { choice:'', place:'', message:'' };
 
     function renderProgress(){
       progress.innerHTML = steps.map((s,i)=>`<div class=\"dot ${i===idx? 'active':''}\"></div>`).join('');
     }
 
-    function showFree(){
-      idx = 0; renderProgress();
-      card.innerHTML = `
-        <div class=\"question\">Are you free?</div>
-        <div class=\"options\"> 
-          <button class=\"btn\" id=\"yes\">Yes</button>
-          <button class=\"btn ghost\" id=\"no\">No</button>
-        </div>
-      `;
-    }
+    function showFree(){ idx=0; renderProgress(); card.innerHTML = `
+      <div class="question">Are you free for a romantic evening?</div>
+      <div class="options">
+        <button class="btn" id="yes">Yes</button>
+        <button class="btn ghost" id="no">No</button>
+      </div>`; }
 
-    function showOptions(){
-      idx = 1; renderProgress();
-      card.innerHTML = `
-        <div class=\"question\">Which option works best?</div>
-        <div class=\"options\">
-          <button class=\"btn\" id=\"o1\">Friday, 7:00 PM</button>
-          <button class=\"btn ghost\" id=\"o2\">Saturday, 3:00 PM</button>
-          <button class=\"btn\" id=\"o3\">Sunday, 11:00 AM</button>
-          <button class=\"btn ghost\" id=\"oCust\">Custom</button>
-        </div>
-      `;
-    }
+    function showOptions(){ idx=1; renderProgress(); card.innerHTML = `
+      <div class="question">Which time would you prefer?</div>
+      <div class="options">
+        <button class="btn" id="o1">Friday, 7:00 PM</button>
+        <button class="btn ghost" id="o2">Saturday, 3:00 PM</button>
+        <button class="btn" id="o3">Sunday, 11:00 AM</button>
+        <button class="btn ghost" id="oCust">Custom</button>
+      </div>`; }
 
-    function showCustom(){
-      idx = 2; renderProgress();
-      card.innerHTML = `
-        <div class=\"question\">Enter a custom time</div>
-        <div class=\"input\"><input id=\"customInput\" type=\"text\" placeholder=\"e.g. Thursday, 6:15 PM\"></div>
-        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"custNext\">Next</button><button class=\"btn ghost\" id=\"custBack\">Back</button></div>
-      `;
-    }
+    function showCustom(){ idx=2; renderProgress(); card.innerHTML = `
+      <div class="question">Enter a gentle time</div>
+      <div class="input"><input id="customInput" type="text" placeholder="e.g. Thursday, 6:15 PM" /></div>
+      <div style="margin-top:12px;display:flex;gap:10px"><button class="btn" id="custNext">Next</button><button class="btn ghost" id="custBack">Back</button></div>`; }
 
-    function showPlace(){
-      idx = 3; renderProgress();
-      card.innerHTML = `
-        <div class=\"question\">Where can we meet?</div>
-        <div class=\"input\"><input id=\"placeInput\" type=\"text\" placeholder=\"Address or place (required)\"></div>
-        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"sendYes\">Send</button><button class=\"btn ghost\" id=\"placeBack\">Back</button></div>
-      `;
-    }
+    function showPlace(){ idx=3; renderProgress(); card.innerHTML = `
+      <div class="question">Where shall we meet?</div>
+      <div class="input"><input id="placeInput" type="text" placeholder="e.g. Moonlight Café, 12 Rose St" /></div>
+      <div style="margin-top:12px;display:flex;gap:10px"><button class="btn pulse" id="sendYes">Send</button><button class="btn ghost" id="placeBack">Back</button></div>`; }
 
-    function showMessage(){
-      idx = 4; renderProgress();
-      card.innerHTML = `
-        <div class=\"question\">Not available — leave a short message (optional)</div>
-        <div class=\"input\"><textarea id=\"msgInput\" placeholder=\"Sorry, I'm not free — maybe another time.\"></textarea></div>
-        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"sendNo\">Send</button><button class=\"btn ghost\" id=\"msgBack\">Back</button></div>
-      `;
-    }
+    function showMessage(){ idx=4; renderProgress(); card.innerHTML = `
+      <div class="question">Not free — leave a short loving note</div>
+      <div class="input"><textarea id="msgInput" placeholder="I'm sorry — perhaps another evening." /></div>
+      <div style="margin-top:12px;display:flex;gap:10px"><button class="btn" id="sendNo">Send</button><button class="btn ghost" id="msgBack">Back</button></div>`; }
 
-    // Initial
+    // initial
     showFree();
 
-    // Delegated events
-    card.addEventListener('click', (e)=>{
-      if(e.target.id === 'yes') showOptions();
-      if(e.target.id === 'no') showMessage();
+    card.addEventListener('click',(e)=>{
+      if(e.target.id==='yes') showOptions();
+      if(e.target.id==='no') showMessage();
 
-      if(e.target.id === 'o1'){ state.choice = 'Friday, 7:00 PM'; showPlace(); }
-      if(e.target.id === 'o2'){ state.choice = 'Saturday, 3:00 PM'; showPlace(); }
-      if(e.target.id === 'o3'){ state.choice = 'Sunday, 11:00 AM'; showPlace(); }
-      if(e.target.id === 'oCust') showCustom();
+      if(e.target.id==='o1'){ state.choice='Friday, 7:00 PM'; showPlace(); }
+      if(e.target.id==='o2'){ state.choice='Saturday, 3:00 PM'; showPlace(); }
+      if(e.target.id==='o3'){ state.choice='Sunday, 11:00 AM'; showPlace(); }
+      if(e.target.id==='oCust') showCustom();
 
-      if(e.target.id === 'custBack') showOptions();
-      if(e.target.id === 'custNext'){
-        const v = document.getElementById('customInput').value.trim();
-        if(!v){ alert('Please enter a time'); document.getElementById('customInput').focus(); return }
-        state.choice = v; showPlace();
-      }
+      if(e.target.id==='custBack') showOptions();
+      if(e.target.id==='custNext'){ const v=document.getElementById('customInput').value.trim(); if(!v){ alert('Please enter a time'); document.getElementById('customInput').focus(); return } state.choice=v; showPlace(); }
 
-      if(e.target.id === 'placeBack') showOptions();
-      if(e.target.id === 'sendYes'){
-        const place = document.getElementById('placeInput').value.trim();
-        if(!place){ alert('Please enter where to meet'); document.getElementById('placeInput').focus(); return }
-        state.place = place;
-        const body = [
-          `Availability: Yes`,
-          `Chosen time: ${state.choice}`,
-          `Where: ${state.place}`,
-          `Sent at: ${new Date().toLocaleString()}`,
-          `User agent: ${navigator.userAgent}`
-        ].join('\n');
-        const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: Yes')}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailto;
-      }
+      if(e.target.id==='placeBack') showOptions();
+      if(e.target.id==='sendYes'){ const place=document.getElementById('placeInput').value.trim(); if(!place){ alert('Please enter where to meet'); document.getElementById('placeInput').focus(); return } state.place=place; const body=[`Availability: Yes`,`Chosen time: ${state.choice}`,`Where: ${state.place}`,`Sent at: ${new Date().toLocaleString()}`,`User agent: ${navigator.userAgent}`].join('\n'); const mailto=`mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: Yes')}&body=${encodeURIComponent(body)}`; window.location.href=mailto; }
 
-      if(e.target.id === 'msgBack') showFree();
-      if(e.target.id === 'sendNo'){
-        const msg = document.getElementById('msgInput').value.trim();
-        const body = [`Availability: No`, msg ? `Message: ${msg}` : '', `Sent at: ${new Date().toLocaleString()}`, `User agent: ${navigator.userAgent}`].filter(Boolean).join('\n');
-        const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: No')}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailto;
-      }
+      if(e.target.id==='msgBack') showFree();
+      if(e.target.id==='sendNo'){ const msg=document.getElementById('msgInput').value.trim(); const body=[`Availability: No`, msg?`Message: ${msg}`:'', `Sent at: ${new Date().toLocaleString()}`, `User agent: ${navigator.userAgent}`].filter(Boolean).join('\n'); const mailto=`mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: No')}&body=${encodeURIComponent(body)}`; window.location.href=mailto; }
     });
 
-    // keyboard support for Enter
-    card.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter'){
-        const active = document.activeElement.id;
-        if(active === 'customInput') document.getElementById('custNext')?.click();
-        if(active === 'placeInput') document.getElementById('sendYes')?.click();
-        if(active === 'msgInput') document.getElementById('sendNo')?.click();
-      }
-    });
+    card.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ const active=document.activeElement.id; if(active==='customInput') document.getElementById('custNext')?.click(); if(active==='placeInput') document.getElementById('sendYes')?.click(); if(active==='msgInput') document.getElementById('sendNo')?.click(); } });
   </script>
 </body>
 </html>
