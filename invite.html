@@ -4,143 +4,191 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Quick RSVP</title>
+  <meta name="description" content="Minimal RSVP flow — one question per screen, polished design." />
   <style>
-    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Arial;background:#fff;color:#0b1220}
-    .wrap{height:100%;display:flex;align-items:center;justify-content:center}
-    .card{width:100%;max-width:480px;padding:28px;border-radius:12px;border:1px solid #eef2f8;box-shadow:0 6px 20px rgba(16,24,40,.04);text-align:center}
-    h1{font-size:20px;margin:0 0 18px}
-    .actions{display:flex;gap:12px;justify-content:center}
-    button{flex:1;padding:12px 14px;border-radius:10px;border:0;background:#0b78ff;color:#fff;font-weight:700;cursor:pointer}
-    button.alt{background:#f3f6fb;color:#0b78ff;border:1px solid #e6eefc}
-    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc;margin-top:12px}
+    /* Clean modern design */
+    :root{
+      --bg-1: #0f1724; /* deep */
+      --bg-2: #0b2447; /* accent dark */
+      --card: #ffffff;
+      --accent: #06b6d4; /* teal */
+      --accent-2: #7c3aed; /* purple */
+      --muted: #94a3b8;
+      --glass: rgba(255,255,255,0.06);
+      --radius: 14px;
+      --shadow: 0 12px 40px rgba(2,6,23,0.4);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;color: #0b1220}
+    body{background:linear-gradient(180deg,var(--bg-1),#07102a 60%);display:flex;align-items:center;justify-content:center;padding:32px}
+
+    .stage{width:100%;max-width:760px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03);color:whitesmoke}
+
+    header{display:flex;align-items:center;gap:14px}
+    .brand{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:700;color:#061124}
+    h1{margin:0;font-size:18px}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    .card{margin-top:18px;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));padding:22px;border-radius:12px;border:1px solid rgba(255,255,255,0.02);min-height:170px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+
+    .question{font-size:20px;font-weight:600;margin:0 0 12px;text-align:center}
+
+    .options{display:flex;gap:12px;width:100%;max-width:620px}
+    .btn{flex:1;padding:14px 16px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021028;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(10,20,30,0.18);transition:transform .12s ease,opacity .12s}
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04);box-shadow:none}
+
+    .input{width:100%;max-width:520px;margin-top:12px}
+    input[type=text], textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:rgba(2,6,23,0.25);color:white}
+    textarea{min-height:88px}
+
+    .footer{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
+
+    .progress{display:flex;gap:6px;justify-content:center;margin-top:14px}
+    .dot{width:8px;height:8px;border-radius:8px;background:rgba(255,255,255,0.06)}
+    .dot.active{background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 6px 16px rgba(124,58,237,0.14)}
+
+    @media (max-width:640px){
+      .options{flex-direction:column}
+    }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="card" id="card" role="region" aria-live="polite">
-      <!-- Step UI injected by JS -->
-    </div>
+  <main class="stage" role="main">
+    <header>
+      <div class="brand" aria-hidden>RS</div>
+      <div>
+        <h1>Quick RSVP</h1>
+        <p class="lead">One question per screen — fast and simple.</p>
+      </div>
+    </header>
+
+    <section class="card" id="card" aria-live="polite">
+      <!-- UI is rendered here -->
+    </section>
+
+    <div class="progress" id="progress" aria-hidden></div>
+
+    <p class="footer">Responses open your mail client and are addressed to a single recipient.</p>
   </main>
 
   <script>
-    // Single organiser
     const ORGANISER = 'rafaelllaban1@gmail.com';
 
-    // Steps: each step is an object { id, render(state) }
-    const steps = [];
-    const state = { choice: null, customTime: '', place: '', message: '' };
-
-    // Helper: render card content
     const card = document.getElementById('card');
-    function render(html){ card.innerHTML = html }
+    const progress = document.getElementById('progress');
 
-    // Move to next step by id
-    function showStep(id){ const s = steps.find(x=>x.id===id); if(s) render(s.render(state)); }
+    const steps = ['free','option','custom','place','message'];
+    let idx = 0;
+    const state = { choice: null, place: '', message: '' };
 
-    // Step 1: Are you free?
-    steps.push({ id: 'q-free', render: ()=> `
-      <h1>Are you free?</h1>
-      <div class="actions">
-        <button id="yes">Yes</button>
-        <button id="no" class="alt">No</button>
-      </div>
-    `});
+    function renderProgress(){
+      progress.innerHTML = steps.map((s,i)=>`<div class=\"dot ${i===idx? 'active':''}\"></div>`).join('');
+    }
 
-    // Step 2 (yes): Which option?
-    steps.push({ id: 'q-option', render: ()=> `
-      <h1>Which option?</h1>
-      <div class="actions">
-        <button id="opt1">Friday 7pm</button>
-        <button id="opt2" class="alt">Saturday 3pm</button>
-      </div>
-      <div style="height:12px"></div>
-      <div class="actions">
-        <button id="opt3">Sunday 11am</button>
-        <button id="optCustom" class="alt">Custom</button>
-      </div>
-    `});
+    function showFree(){
+      idx = 0; renderProgress();
+      card.innerHTML = `
+        <div class=\"question\">Are you free?</div>
+        <div class=\"options\"> 
+          <button class=\"btn\" id=\"yes\">Yes</button>
+          <button class=\"btn ghost\" id=\"no\">No</button>
+        </div>
+      `;
+    }
 
-    // Step 3 (yes): Where?
-    steps.push({ id: 'q-place', render: ()=> `
-      <h1>Where can we meet?</h1>
-      <input id="place" type="text" placeholder="Address or place" />
-      <div style="height:12px"></div>
-      <div class="actions">
-        <button id="sendYes">Send</button>
-        <button id="backPlace" class="alt">Back</button>
-      </div>
-    `});
+    function showOptions(){
+      idx = 1; renderProgress();
+      card.innerHTML = `
+        <div class=\"question\">Which option works best?</div>
+        <div class=\"options\">
+          <button class=\"btn\" id=\"o1\">Friday, 7:00 PM</button>
+          <button class=\"btn ghost\" id=\"o2\">Saturday, 3:00 PM</button>
+          <button class=\"btn\" id=\"o3\">Sunday, 11:00 AM</button>
+          <button class=\"btn ghost\" id=\"oCust\">Custom</button>
+        </div>
+      `;
+    }
 
-    // Step custom time input
-    steps.push({ id: 'q-custom', render: ()=> `
-      <h1>Enter custom time</h1>
-      <input id="custom" type="text" placeholder="e.g. Thursday, 6:15 PM" />
-      <div style="height:12px"></div>
-      <div class="actions">
-        <button id="nextFromCustom">Next</button>
-        <button id="backCustom" class="alt">Back</button>
-      </div>
-    `});
+    function showCustom(){
+      idx = 2; renderProgress();
+      card.innerHTML = `
+        <div class=\"question\">Enter a custom time</div>
+        <div class=\"input\"><input id=\"customInput\" type=\"text\" placeholder=\"e.g. Thursday, 6:15 PM\"></div>
+        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"custNext\">Next</button><button class=\"btn ghost\" id=\"custBack\">Back</button></div>
+      `;
+    }
 
-    // Step 2 (no): Message?
-    steps.push({ id: 'q-no', render: ()=> `
-      <h1>Leave a short message (optional)</h1>
-      <textarea id="msg" placeholder="Sorry, not available..." rows="4"></textarea>
-      <div style="height:12px"></div>
-      <div class="actions">
-        <button id="sendNo">Send</button>
-        <button id="backNo" class="alt">Back</button>
-      </div>
-    `});
+    function showPlace(){
+      idx = 3; renderProgress();
+      card.innerHTML = `
+        <div class=\"question\">Where can we meet?</div>
+        <div class=\"input\"><input id=\"placeInput\" type=\"text\" placeholder=\"Address or place (required)\"></div>
+        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"sendYes\">Send</button><button class=\"btn ghost\" id=\"placeBack\">Back</button></div>
+      `;
+    }
 
-    // Initial render
-    showStep('q-free');
+    function showMessage(){
+      idx = 4; renderProgress();
+      card.innerHTML = `
+        <div class=\"question\">Not available — leave a short message (optional)</div>
+        <div class=\"input\"><textarea id=\"msgInput\" placeholder=\"Sorry, I'm not free — maybe another time.\"></textarea></div>
+        <div style=\"margin-top:12px;display:flex;gap:10px\"><button class=\"btn\" id=\"sendNo\">Send</button><button class=\"btn ghost\" id=\"msgBack\">Back</button></div>
+      `;
+    }
 
-    // Delegate clicks
+    // Initial
+    showFree();
+
+    // Delegated events
     card.addEventListener('click', (e)=>{
-      if(e.target.matches('#yes')){ showStep('q-option'); }
-      if(e.target.matches('#no')){ showStep('q-no'); }
+      if(e.target.id === 'yes') showOptions();
+      if(e.target.id === 'no') showMessage();
 
-      if(e.target.matches('#opt1')){ state.choice = 'Friday, 7:00 PM'; showStep('q-place'); }
-      if(e.target.matches('#opt2')){ state.choice = 'Saturday, 3:00 PM'; showStep('q-place'); }
-      if(e.target.matches('#opt3')){ state.choice = 'Sunday, 11:00 AM'; showStep('q-place'); }
-      if(e.target.matches('#optCustom')){ showStep('q-custom'); }
+      if(e.target.id === 'o1'){ state.choice = 'Friday, 7:00 PM'; showPlace(); }
+      if(e.target.id === 'o2'){ state.choice = 'Saturday, 3:00 PM'; showPlace(); }
+      if(e.target.id === 'o3'){ state.choice = 'Sunday, 11:00 AM'; showPlace(); }
+      if(e.target.id === 'oCust') showCustom();
 
-      if(e.target.matches('#backPlace')){ showStep('q-option'); }
-      if(e.target.matches('#backCustom')){ showStep('q-option'); }
-      if(e.target.matches('#backNo')){ showStep('q-free'); }
-
-      if(e.target.matches('#nextFromCustom')){
-        const val = document.getElementById('custom').value.trim();
-        if(!val){ alert('Please enter a time'); return }
-        state.choice = val;
-        showStep('q-place');
+      if(e.target.id === 'custBack') showOptions();
+      if(e.target.id === 'custNext'){
+        const v = document.getElementById('customInput').value.trim();
+        if(!v){ alert('Please enter a time'); document.getElementById('customInput').focus(); return }
+        state.choice = v; showPlace();
       }
 
-      if(e.target.matches('#sendYes')){
-        const place = document.getElementById('place').value.trim();
-        if(!place){ alert('Please enter where to meet'); return }
+      if(e.target.id === 'placeBack') showOptions();
+      if(e.target.id === 'sendYes'){
+        const place = document.getElementById('placeInput').value.trim();
+        if(!place){ alert('Please enter where to meet'); document.getElementById('placeInput').focus(); return }
         state.place = place;
-        const body = [`Availability: Yes`,`Chosen time: ${state.choice}`,`Where: ${state.place}`,`Sent at: ${new Date().toLocaleString()}`,`User agent: ${navigator.userAgent}`].join('\n');
+        const body = [
+          `Availability: Yes`,
+          `Chosen time: ${state.choice}`,
+          `Where: ${state.place}`,
+          `Sent at: ${new Date().toLocaleString()}`,
+          `User agent: ${navigator.userAgent}`
+        ].join('\n');
         const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: Yes')}&body=${encodeURIComponent(body)}`;
         window.location.href = mailto;
       }
 
-      if(e.target.matches('#sendNo')){
-        const msg = document.getElementById('msg').value.trim();
-        state.message = msg;
+      if(e.target.id === 'msgBack') showFree();
+      if(e.target.id === 'sendNo'){
+        const msg = document.getElementById('msgInput').value.trim();
         const body = [`Availability: No`, msg ? `Message: ${msg}` : '', `Sent at: ${new Date().toLocaleString()}`, `User agent: ${navigator.userAgent}`].filter(Boolean).join('\n');
         const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: No')}&body=${encodeURIComponent(body)}`;
         window.location.href = mailto;
       }
     });
 
-    // handle Enter key for inputs
+    // keyboard support for Enter
     card.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){
-        if(e.target.id === 'place') document.getElementById('sendYes')?.click();
-        if(e.target.id === 'custom') document.getElementById('nextFromCustom')?.click();
-        if(e.target.id === 'msg') document.getElementById('sendNo')?.click();
+        const active = document.activeElement.id;
+        if(active === 'customInput') document.getElementById('custNext')?.click();
+        if(active === 'placeInput') document.getElementById('sendYes')?.click();
+        if(active === 'msgInput') document.getElementById('sendNo')?.click();
       }
     });
   </script>
