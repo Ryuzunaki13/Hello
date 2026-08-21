@@ -15,8 +15,7 @@
     .actions{display:flex;gap:.6rem;margin-top:1rem}
     button{padding:.6rem .9rem;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
     button.ghost{background:#eef4ff;color:var(--accent);border:1px solid rgba(11,120,255,.08)}
-    .btn-secondary{background:#fff;color:var(--accent);border:1px solid #dbeafe}
-    .options{display:flex;flex-direction:column;gap:.5rem;margin-top:.6rem}
+    .options{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem}
     label.option{display:flex;align-items:center;gap:.6rem;padding:.5rem;border-radius:8px;border:1px solid #eef2ff;background:#fbfdff}
     input[type=text], input[type=email], textarea{width:100%;padding:.65rem;border:1px solid #e6eefc;border-radius:8px;font-size:1rem}
     .small{font-size:.9rem;color:var(--muted)}
@@ -27,13 +26,10 @@
 <body>
   <main class="wrap">
     <h1>Are you free?</h1>
-    <p class="lead">Quick response page — the answers will be emailed to the organiser. If you opened this from a link, the organiser's email may already be filled in.</p>
+    <p class="lead">Quick response page — this will send your choice directly to a single address.</p>
 
     <form id="flowForm" onsubmit="return false;">
-      <!-- optional: owner email (where responses are sent) -->
-      <label class="small">Send responses to (organiser email)
-        <input id="ownerEmail" type="email" placeholder="organiser@example.com" aria-label="Organiser email" />
-      </label>
+      <!-- Note: organiser is hardcoded to a single address for simplicity -->
 
       <!-- Step 1: Free? -->
       <section id="step1" class="step active" aria-live="polite">
@@ -48,9 +44,9 @@
       <section id="step2-yes" class="step" aria-live="polite">
         <p class="small">Great! Which option works best for you?</p>
         <div class="options" role="radiogroup" aria-label="Choose a date option">
-          <label class="option"><input name="choice" type="radio" value="Option 1: Friday 7pm" checked /> <span>Option 1: Friday, 7:00 PM</span></label>
-          <label class="option"><input name="choice" type="radio" value="Option 2: Saturday 3pm" /> <span>Option 2: Saturday, 3:00 PM</span></label>
-          <label class="option"><input name="choice" type="radio" value="Option 3: Sunday 11am" /> <span>Option 3: Sunday, 11:00 AM</span></label>
+          <label class="option"><input name="choice" type="radio" value="Friday, 7:00 PM" checked /> <span>Option 1: Friday, 7:00 PM</span></label>
+          <label class="option"><input name="choice" type="radio" value="Saturday, 3:00 PM" /> <span>Option 2: Saturday, 3:00 PM</span></label>
+          <label class="option"><input name="choice" type="radio" value="Sunday, 11:00 AM" /> <span>Option 3: Sunday, 11:00 AM</span></label>
           <label class="option"><input name="choice" type="radio" value="Custom" /> <span>Custom time</span></label>
         </div>
 
@@ -96,7 +92,7 @@
 
       <!-- Step 4: Summary & send -->
       <section id="step4" class="step" aria-live="polite">
-        <p class="small">Review the response below — clicking "Send response" will open your email client with the organiser's email prefilled.</p>
+        <p class="small">Review the response below — clicking "Send response" will open the visitor's mail client with the organiser prefilled (but the organiser is a single fixed address).</p>
         <div id="summary" class="summary">(summary will appear here)</div>
         <div class="actions">
           <button id="sendResponse" type="button">Send response</button>
@@ -106,12 +102,12 @@
 
     </form>
 
-    <footer>If the organiser's email was not prefilled, enter it at the top. This is a static demo page — sending uses your mail client (mailto:), so ensure you have one configured.</footer>
+    <footer>Responses will be sent to a single address. This page uses mailto: (your mail client) to send — no server is required.</footer>
   </main>
 
   <script>
-    // Utility to get query param
-    function qparam(k){const u=new URL(window.location.href); return u.searchParams.get(k)}
+    // Hardcoded organiser email (single recipient)
+    const ORGANISER_EMAIL = 'rafaelllaban1@gmail.com';
 
     // Elements
     const step1 = document.getElementById('step1');
@@ -119,12 +115,6 @@
     const step2no = document.getElementById('step2-no');
     const step3 = document.getElementById('step3');
     const step4 = document.getElementById('step4');
-
-    const ownerEmailEl = document.getElementById('ownerEmail');
-
-    // Prefill organiser email from ?to= or ?owner
-    const preTo = qparam('to') || qparam('owner') || qparam('email');
-    if(preTo) ownerEmailEl.value = preTo;
 
     // Step navigation
     function show(step){[step1,step2yes,step2no,step3,step4].forEach(s=>s.classList.remove('active')); step.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'})}
@@ -146,25 +136,25 @@
     // If the user chooses Next from Yes -> go to where
     document.getElementById('toWhereYes').addEventListener('click', ()=> show(step3));
 
-    // If user clicks send while No
+    // If user clicks send while No -> open mail client to ORGANISER_EMAIL
     document.getElementById('sendNo').addEventListener('click', ()=>{
-      const owner = ownerEmailEl.value.trim();
-      if(!owner){ alert('Please provide the organiser email at top before sending.'); ownerEmailEl.focus(); return }
       const name = document.getElementById('visitorName').value.trim();
       const message = document.getElementById('noMessage').value.trim();
       const bodyLines = [];
       bodyLines.push(name ? `Name: ${name}` : 'Name: (not provided)');
       bodyLines.push('Availability: No');
       if(message) bodyLines.push('\nMessage:\n' + message);
+      bodyLines.push('\nReceived at: ' + new Date().toISOString());
+      bodyLines.push('User agent: ' + navigator.userAgent);
       const subject = 'Invitation response: Not available';
-      const mailto = `mailto:${encodeURIComponent(owner)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+      const mailto = `mailto:${encodeURIComponent(ORGANISER_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
       window.location.href = mailto;
     });
 
     // Move from Step3 to Summary
     document.getElementById('toSummary').addEventListener('click', ()=>{
-      // build summary
-      const choice = document.querySelector('input[name="choice"]:checked').value;
+      const choiceEl = document.querySelector('input[name="choice"]:checked');
+      const choice = choiceEl ? choiceEl.value : '';
       const custom = document.getElementById('customTime').value.trim();
       const chosen = choice === 'Custom' ? (custom || '(custom time not provided)') : choice;
       const address = document.getElementById('meetAddress').value.trim() || '(no address provided)';
@@ -178,18 +168,18 @@
       lines.push(`Chosen option/time: ${chosen}`);
       lines.push(`Where to meet: ${address}`);
       if(includeEmail && visitorEmail) lines.push(`Visitor email: ${visitorEmail}`);
+      lines.push('\nReceived at: ' + new Date().toISOString());
+      lines.push('User agent: ' + navigator.userAgent);
 
       document.getElementById('summary').textContent = lines.join('\n');
       show(step4);
     });
 
-    // Send final response
+    // Send final response (mailto to ORGANISER_EMAIL)
     document.getElementById('sendResponse').addEventListener('click', ()=>{
-      const owner = ownerEmailEl.value.trim();
-      if(!owner){ alert('Please provide the organiser email at top before sending.'); ownerEmailEl.focus(); return }
       const summaryText = document.getElementById('summary').textContent;
       const subject = 'Invitation response';
-      const mailto = `mailto:${encodeURIComponent(owner)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summaryText)}`;
+      const mailto = `mailto:${encodeURIComponent(ORGANISER_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summaryText)}`;
       window.location.href = mailto;
     });
 
