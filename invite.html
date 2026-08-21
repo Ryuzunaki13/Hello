@@ -3,225 +3,146 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Invitation — Quick RSVP</title>
-  <meta name="description" content="Simple RSVP page: Yes / No flow, three options, meeting place, review and send to organiser." />
+  <title>Quick RSVP</title>
   <style>
-    :root{
-      --bg:#f4f6f9;
-      --card:#ffffff;
-      --accent:#0b78ff;
-      --accent-2:#7c5cff;
-      --muted:#6b7280;
-      --radius:12px;
-      --glass: rgba(11,120,255,0.06);
-      --success:#10b981;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,'Helvetica Neue',Arial;background:var(--bg);color:#0f1724;-webkit-font-smoothing:antialiased}
-    .wrap{max-width:760px;margin:5vh auto;padding:24px;background:var(--card);border-radius:var(--radius);box-shadow:0 8px 30px rgba(15,23,42,.06)}
-
-    header{display:flex;align-items:center;gap:12px}
-    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:white;font-weight:700}
-    h1{margin:0;font-size:20px}
-    p.lead{margin:6px 0 18px;color:var(--muted)}
-
-    .step{display:none}
-    .step.active{display:block}
-
-    .center{display:flex;align-items:center;justify-content:center}
-
-    .btn{appearance:none;border:0;padding:12px 14px;border-radius:10px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
-    .btn.ghost{background:transparent;border:1px solid var(--glass);color:var(--accent)}
-    .btn.block{display:block;width:100%}
-    .controls{display:flex;gap:12px}
-
-    .big{padding:16px 18px;font-size:16px}
-    .yes{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
-    .no{background:#eef2ff;color:var(--accent);border:1px solid rgba(124,92,255,0.06)}
-
-    .options{display:flex;gap:10px;margin-top:12px}
-    .option{flex:1;padding:10px;border-radius:10px;border:1px solid #eef4ff;background:#fbfdff;text-align:center;cursor:pointer}
-    .option.active{outline:3px solid rgba(11,120,255,0.12);border-color:transparent}
-
-    label{display:block;margin-top:12px}
-    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc}
-    textarea{min-height:80px}
-
-    .summary{background:#f8fafc;border:1px solid #eef4ff;padding:12px;border-radius:8px;margin-top:12px;white-space:pre-wrap}
-
-    footer{margin-top:14px;color:var(--muted);font-size:13px}
-
-    @media (max-width:640px){
-      .options{flex-direction:column}
-      .controls{flex-direction:column}
-    }
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Arial;background:#fff;color:#0b1220}
+    .wrap{height:100%;display:flex;align-items:center;justify-content:center}
+    .card{width:100%;max-width:480px;padding:28px;border-radius:12px;border:1px solid #eef2f8;box-shadow:0 6px 20px rgba(16,24,40,.04);text-align:center}
+    h1{font-size:20px;margin:0 0 18px}
+    .actions{display:flex;gap:12px;justify-content:center}
+    button{flex:1;padding:12px 14px;border-radius:10px;border:0;background:#0b78ff;color:#fff;font-weight:700;cursor:pointer}
+    button.alt{background:#f3f6fb;color:#0b78ff;border:1px solid #e6eefc}
+    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc;margin-top:12px}
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
-    <header>
-      <div class="logo" aria-hidden="true">RSVP</div>
-      <div>
-        <h1>Would you like to go on a date?</h1>
-        <p class="lead">Quick RSVP — responds directly to the organiser. Takes 30 seconds.</p>
-      </div>
-    </header>
-
-    <!-- Step 1: Yes / No -->
-    <section id="step-1" class="step active" aria-labelledby="q1">
-      <h2 id="q1" style="font-size:16px;margin-top:18px">Are you free?</h2>
-      <div class="controls" style="margin-top:12px">
-        <button id="btnYes" class="btn big yes">Yes</button>
-        <button id="btnNo" class="btn big no">No</button>
-      </div>
-    </section>
-
-    <!-- Step 2a: Yes flow -->
-    <section id="step-yes" class="step" aria-labelledby="q2">
-      <h2 id="q2" style="font-size:16px;margin-top:18px">Great — pick a time</h2>
-      <div class="options" role="listbox" aria-label="Available options">
-        <div class="option" data-val="Friday, 7:00 PM">Friday, 7:00 PM</div>
-        <div class="option" data-val="Saturday, 3:00 PM">Saturday, 3:00 PM</div>
-        <div class="option" data-val="Sunday, 11:00 AM">Sunday, 11:00 AM</div>
-        <div class="option" data-val="Custom">Custom…</div>
-      </div>
-
-      <div id="customWrap" style="display:none">
-        <label>Custom time
-          <input id="customTime" type="text" placeholder="e.g. Thursday, 6:15 PM" />
-        </label>
-      </div>
-
-      <label>Where can we meet? (required)
-        <input id="meetPlace" type="text" placeholder="e.g. Cafe Mocha, 123 Main St" />
-      </label>
-
-      <div class="controls" style="margin-top:12px">
-        <button id="toReviewYes" class="btn block">Review & Send</button>
-        <button id="backTo1a" class="btn ghost block">Back</button>
-      </div>
-    </section>
-
-    <!-- Step 2b: No flow -->
-    <section id="step-no" class="step" aria-labelledby="q3">
-      <h2 id="q3" style="font-size:16px;margin-top:18px">Sorry — would you like to add a short message?</h2>
-      <label>Message (optional)
-        <textarea id="noMessage" placeholder="Sorry, I can't — maybe another time."></textarea>
-      </label>
-      <div class="controls" style="margin-top:12px">
-        <button id="sendNoBtn" class="btn block">Send response</button>
-        <button id="backTo1b" class="btn ghost block">Back</button>
-      </div>
-    </section>
-
-    <!-- Step 3: Review & Send -->
-    <section id="step-review" class="step" aria-labelledby="q4">
-      <h2 id="q4" style="font-size:16px;margin-top:18px">Review</h2>
-      <div id="summaryBox" class="summary">(summary appears here)</div>
-      <div class="controls" style="margin-top:12px">
-        <button id="sendBtn" class="btn block">Send response</button>
-        <button id="editBtn" class="btn ghost block">Edit</button>
-      </div>
-    </section>
-
-    <footer>Responses are prepared in your mail client and sent to a single recipient.</footer>
+  <main class="wrap">
+    <div class="card" id="card" role="region" aria-live="polite">
+      <!-- Step UI injected by JS -->
+    </div>
   </main>
 
   <script>
-    // Single organiser email
+    // Single organiser
     const ORGANISER = 'rafaelllaban1@gmail.com';
 
-    // Step elements
-    const s1 = document.getElementById('step-1');
-    const sYes = document.getElementById('step-yes');
-    const sNo = document.getElementById('step-no');
-    const sReview = document.getElementById('step-review');
+    // Steps: each step is an object { id, render(state) }
+    const steps = [];
+    const state = { choice: null, customTime: '', place: '', message: '' };
 
-    function show(step){ [s1,sYes,sNo,sReview].forEach(s => s.classList.remove('active')); step.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+    // Helper: render card content
+    const card = document.getElementById('card');
+    function render(html){ card.innerHTML = html }
 
-    // Step 1
-    document.getElementById('btnYes').addEventListener('click', ()=> show(sYes));
-    document.getElementById('btnNo').addEventListener('click', ()=> show(sNo));
+    // Move to next step by id
+    function showStep(id){ const s = steps.find(x=>x.id===id); if(s) render(s.render(state)); }
 
-    // Options handling
-    const options = Array.from(document.querySelectorAll('.option'));
-    let chosenOption = options[0].dataset.val;
-    options.forEach(opt => {
-      opt.addEventListener('click', ()=>{
-        options.forEach(o=>o.classList.remove('active'));
-        opt.classList.add('active');
-        chosenOption = opt.dataset.val;
-        document.getElementById('customWrap').style.display = chosenOption === 'Custom' ? 'block' : 'none';
-      });
+    // Step 1: Are you free?
+    steps.push({ id: 'q-free', render: ()=> `
+      <h1>Are you free?</h1>
+      <div class="actions">
+        <button id="yes">Yes</button>
+        <button id="no" class="alt">No</button>
+      </div>
+    `});
+
+    // Step 2 (yes): Which option?
+    steps.push({ id: 'q-option', render: ()=> `
+      <h1>Which option?</h1>
+      <div class="actions">
+        <button id="opt1">Friday 7pm</button>
+        <button id="opt2" class="alt">Saturday 3pm</button>
+      </div>
+      <div style="height:12px"></div>
+      <div class="actions">
+        <button id="opt3">Sunday 11am</button>
+        <button id="optCustom" class="alt">Custom</button>
+      </div>
+    `});
+
+    // Step 3 (yes): Where?
+    steps.push({ id: 'q-place', render: ()=> `
+      <h1>Where can we meet?</h1>
+      <input id="place" type="text" placeholder="Address or place" />
+      <div style="height:12px"></div>
+      <div class="actions">
+        <button id="sendYes">Send</button>
+        <button id="backPlace" class="alt">Back</button>
+      </div>
+    `});
+
+    // Step custom time input
+    steps.push({ id: 'q-custom', render: ()=> `
+      <h1>Enter custom time</h1>
+      <input id="custom" type="text" placeholder="e.g. Thursday, 6:15 PM" />
+      <div style="height:12px"></div>
+      <div class="actions">
+        <button id="nextFromCustom">Next</button>
+        <button id="backCustom" class="alt">Back</button>
+      </div>
+    `});
+
+    // Step 2 (no): Message?
+    steps.push({ id: 'q-no', render: ()=> `
+      <h1>Leave a short message (optional)</h1>
+      <textarea id="msg" placeholder="Sorry, not available..." rows="4"></textarea>
+      <div style="height:12px"></div>
+      <div class="actions">
+        <button id="sendNo">Send</button>
+        <button id="backNo" class="alt">Back</button>
+      </div>
+    `});
+
+    // Initial render
+    showStep('q-free');
+
+    // Delegate clicks
+    card.addEventListener('click', (e)=>{
+      if(e.target.matches('#yes')){ showStep('q-option'); }
+      if(e.target.matches('#no')){ showStep('q-no'); }
+
+      if(e.target.matches('#opt1')){ state.choice = 'Friday, 7:00 PM'; showStep('q-place'); }
+      if(e.target.matches('#opt2')){ state.choice = 'Saturday, 3:00 PM'; showStep('q-place'); }
+      if(e.target.matches('#opt3')){ state.choice = 'Sunday, 11:00 AM'; showStep('q-place'); }
+      if(e.target.matches('#optCustom')){ showStep('q-custom'); }
+
+      if(e.target.matches('#backPlace')){ showStep('q-option'); }
+      if(e.target.matches('#backCustom')){ showStep('q-option'); }
+      if(e.target.matches('#backNo')){ showStep('q-free'); }
+
+      if(e.target.matches('#nextFromCustom')){
+        const val = document.getElementById('custom').value.trim();
+        if(!val){ alert('Please enter a time'); return }
+        state.choice = val;
+        showStep('q-place');
+      }
+
+      if(e.target.matches('#sendYes')){
+        const place = document.getElementById('place').value.trim();
+        if(!place){ alert('Please enter where to meet'); return }
+        state.place = place;
+        const body = [`Availability: Yes`,`Chosen time: ${state.choice}`,`Where: ${state.place}`,`Sent at: ${new Date().toLocaleString()}`,`User agent: ${navigator.userAgent}`].join('\n');
+        const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: Yes')}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+      }
+
+      if(e.target.matches('#sendNo')){
+        const msg = document.getElementById('msg').value.trim();
+        state.message = msg;
+        const body = [`Availability: No`, msg ? `Message: ${msg}` : '', `Sent at: ${new Date().toLocaleString()}`, `User agent: ${navigator.userAgent}`].filter(Boolean).join('\n');
+        const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent('Invitation response: No')}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+      }
     });
-    // select first by default
-    options[0].classList.add('active');
 
-    // Back buttons
-    document.getElementById('backTo1a').addEventListener('click', ()=> show(s1));
-    document.getElementById('backTo1b').addEventListener('click', ()=> show(s1));
-    document.getElementById('editBtn').addEventListener('click', ()=> show(sYes));
-
-    // Build payload and summary
-    function buildYesSummary(){
-      const time = chosenOption === 'Custom' ? (document.getElementById('customTime').value.trim() || '(custom not provided)') : chosenOption;
-      const place = document.getElementById('meetPlace').value.trim();
-      const visitor = '(not provided)';
-      const lines = [];
-      lines.push('Availability: Yes');
-      lines.push('Chosen time: ' + time);
-      lines.push('Where: ' + (place || '(not provided)'));
-      lines.push('Visitor name: ' + visitor);
-      lines.push('Sent at: ' + new Date().toLocaleString());
-      lines.push('User agent: ' + navigator.userAgent);
-      return { body: lines.join('\n'), short: `Yes — ${time} @ ${place || '(no place)'}` };
-    }
-
-    function buildNoSummary(){
-      const msg = document.getElementById('noMessage').value.trim() || '(no message)';
-      const lines = [];
-      lines.push('Availability: No');
-      lines.push('Message: ' + msg);
-      lines.push('Sent at: ' + new Date().toLocaleString());
-      lines.push('User agent: ' + navigator.userAgent);
-      return { body: lines.join('\n'), short: `No — ${msg}` };
-    }
-
-    // Review from Yes
-    document.getElementById('toReviewYes').addEventListener('click', ()=>{
-      const place = document.getElementById('meetPlace').value.trim();
-      if(!place){ alert('Please enter where you can meet.'); document.getElementById('meetPlace').focus(); return }
-      const payload = buildYesSummary();
-      document.getElementById('summaryBox').textContent = payload.body;
-      show(sReview);
+    // handle Enter key for inputs
+    card.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        if(e.target.id === 'place') document.getElementById('sendYes')?.click();
+        if(e.target.id === 'custom') document.getElementById('nextFromCustom')?.click();
+        if(e.target.id === 'msg') document.getElementById('sendNo')?.click();
+      }
     });
-
-    // Send from No
-    document.getElementById('sendNoBtn').addEventListener('click', ()=>{
-      const payload = buildNoSummary();
-      // open mailto
-      const subject = 'Invitation response: No';
-      const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(payload.body)}`;
-      window.location.href = mailto;
-    });
-
-    // Final send
-    document.getElementById('sendBtn').addEventListener('click', ()=>{
-      const text = document.getElementById('summaryBox').textContent;
-      const subject = text.startsWith('Availability: Yes') ? 'Invitation response: Yes' : 'Invitation response';
-      const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-      window.location.href = mailto;
-    });
-
-    // Small UX: Enter key on inputs progresses
-    ['customTime','meetPlace','noMessage'].forEach(id=>{
-      const el = document.getElementById(id);
-      if(!el) return;
-      el.addEventListener('keydown', e=>{ if(e.key === 'Enter' && id !== 'noMessage') { e.preventDefault(); document.getElementById('toReviewYes').click(); } });
-    });
-
-    // Start: ensure focus
-    document.getElementById('btnYes').focus();
   </script>
 </body>
 </html>
