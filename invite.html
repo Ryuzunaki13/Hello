@@ -3,200 +3,122 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Date Invitation — Respond</title>
+  <title>Quick RSVP</title>
   <style>
-    :root{--bg:#f5f7fb;--card:#fff;--accent:#0b78ff;--muted:#667085}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:0;background:var(--bg);color:#0f1724}
-    .wrap{max-width:680px;margin:3.5rem auto;padding:1.25rem;background:var(--card);border-radius:10px;box-shadow:0 8px 30px rgba(16,24,40,.06)}
-    h1{margin:.25rem 0 0;font-size:1.25rem}
-    p.lead{margin:.25rem 0 1rem;color:var(--muted)}
-    .step{display:none}
-    .step.active{display:block}
-    .actions{display:flex;gap:.6rem;margin-top:1rem}
-    button{padding:.6rem .9rem;border:0;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
-    button.ghost{background:#eef4ff;color:var(--accent);border:1px solid rgba(11,120,255,.08)}
-    .options{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem}
-    label.option{display:flex;align-items:center;gap:.6rem;padding:.5rem;border-radius:8px;border:1px solid #eef2ff;background:#fbfdff}
-    input[type=text], input[type=email], textarea{width:100%;padding:.65rem;border:1px solid #e6eefc;border-radius:8px;font-size:1rem}
-    .small{font-size:.9rem;color:var(--muted)}
-    .summary{white-space:pre-wrap;background:#fafcff;border:1px solid #eef4ff;padding:1rem;border-radius:8px;margin-top:.75rem}
-    footer{margin-top:1.25rem;font-size:.85rem;color:var(--muted)}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#ffffff;color:#0b1220}
+    .wrap{max-width:520px;margin:6vh auto;padding:28px;border-radius:12px;border:1px solid #eef2f7;box-shadow:0 6px 20px rgba(16,24,40,.04)}
+    h1{font-size:20px;margin:0 0 8px}
+    p{margin:0 0 16px;color:#445}
+    .controls{display:flex;gap:12px}
+    button{flex:1;padding:10px 12px;border-radius:8px;border:0;background:#0b78ff;color:#fff;font-weight:600;cursor:pointer}
+    button.ghost{background:#f3f6fb;color:#0b78ff;border:1px solid #e6eefc}
+    .hidden{display:none}
+    label{display:block;margin-bottom:10px}
+    input[type=text], textarea{width:100%;padding:10px;border:1px solid #e6eefc;border-radius:8px;font-size:14px}
+    .radio-row{display:flex;gap:8px;margin-bottom:10px}
+    .radio-row label{flex:1;padding:10px;border-radius:8px;border:1px solid #eef4ff;background:#fbfdff;text-align:center;cursor:pointer}
+    .small{font-size:13px;color:#667085;margin-top:8px}
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1>Are you free?</h1>
-    <p class="lead">Quick response page — this will send your choice directly to a single address.</p>
+    <p>Quick reply — your response will be prepared for emailing to the organiser.</p>
 
-    <form id="flowForm" onsubmit="return false;">
-      <!-- Note: organiser is hardcoded to a single address for simplicity -->
+    <div id="step1" aria-live="polite">
+      <div class="controls">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn" class="ghost">No</button>
+      </div>
+    </div>
 
-      <!-- Step 1: Free? -->
-      <section id="step1" class="step active" aria-live="polite">
-        <p class="small">Hi — are you available for a date?</p>
-        <div class="actions">
-          <button type="button" id="btnYes">Yes</button>
-          <button type="button" id="btnNo" class="ghost">No</button>
+    <form id="yesForm" class="hidden" onsubmit="return false;" aria-live="polite">
+      <div style="margin-top:14px">
+        <div class="radio-row" role="radiogroup" aria-label="Choose time">
+          <label><input type="radio" name="time" value="Friday, 7:00 PM" checked style="display:none"/>Friday, 7:00 PM</label>
+          <label><input type="radio" name="time" value="Saturday, 3:00 PM" style="display:none"/>Saturday, 3:00 PM</label>
+          <label><input type="radio" name="time" value="Sunday, 11:00 AM" style="display:none"/>Sunday, 11:00 AM</label>
         </div>
-      </section>
+        <label>
+          Where can we meet? (required)
+          <input id="meet" type="text" placeholder="e.g. Cafe Mocha, 123 Main St" required />
+        </label>
+      </div>
 
-      <!-- Step 2a: If yes, pick one of three options -->
-      <section id="step2-yes" class="step" aria-live="polite">
-        <p class="small">Great! Which option works best for you?</p>
-        <div class="options" role="radiogroup" aria-label="Choose a date option">
-          <label class="option"><input name="choice" type="radio" value="Friday, 7:00 PM" checked /> <span>Option 1: Friday, 7:00 PM</span></label>
-          <label class="option"><input name="choice" type="radio" value="Saturday, 3:00 PM" /> <span>Option 2: Saturday, 3:00 PM</span></label>
-          <label class="option"><input name="choice" type="radio" value="Sunday, 11:00 AM" /> <span>Option 3: Sunday, 11:00 AM</span></label>
-          <label class="option"><input name="choice" type="radio" value="Custom" /> <span>Custom time</span></label>
-        </div>
-
-        <div id="customTimeWrap" style="margin-top:.6rem;display:none">
-          <input id="customTime" type="text" placeholder="e.g. Thursday, 6:15 PM" />
-        </div>
-
-        <div style="margin-top:.6rem">
-          <label class="small">Your name (optional)
-            <input id="visitorName" type="text" placeholder="e.g. Sarah" />
-          </label>
-        </div>
-
-        <div class="actions">
-          <button id="toWhereYes" type="button">Next: Where to meet</button>
-          <button id="back1a" type="button" class="ghost">Back</button>
-        </div>
-      </section>
-
-      <!-- Step 2b: If No, allow optional reply -->
-      <section id="step2-no" class="step" aria-live="polite">
-        <p class="small">Sorry to hear you're not available. Would you like to add a short message?</p>
-        <textarea id="noMessage" placeholder="Optional: maybe another day works for me..." ></textarea>
-        <div class="actions">
-          <button id="sendNo" type="button">Send response</button>
-          <button id="back1b" type="button" class="ghost">Back</button>
-        </div>
-      </section>
-
-      <!-- Step 3: Where to meet -->
-      <section id="step3" class="step" aria-live="polite">
-        <p class="small">Where can we meet? Enter an address or place name (or leave blank to let organiser decide)</p>
-        <input id="meetAddress" type="text" placeholder="e.g. Cafe Mocha, 123 Main St" />
-
-        <label class="small" style="margin-top:.5rem;display:block"><input id="includeVisitorEmail" type="checkbox" /> Include my email so organiser can reply directly</label>
-        <input id="visitorEmail" type="email" placeholder="Your email (optional)" style="margin-top:.5rem;display:block" />
-
-        <div class="actions">
-          <button id="toSummary" type="button">Review & Send</button>
-          <button id="back2" type="button" class="ghost">Back</button>
-        </div>
-      </section>
-
-      <!-- Step 4: Summary & send -->
-      <section id="step4" class="step" aria-live="polite">
-        <p class="small">Review the response below — clicking "Send response" will open the visitor's mail client with the organiser prefilled (but the organiser is a single fixed address).</p>
-        <div id="summary" class="summary">(summary will appear here)</div>
-        <div class="actions">
-          <button id="sendResponse" type="button">Send response</button>
-          <button id="back3" type="button" class="ghost">Back</button>
-        </div>
-      </section>
-
+      <div class="controls" style="margin-top:8px">
+        <button id="sendYes">Send</button>
+        <button id="backYes" class="ghost">Back</button>
+      </div>
+      <div class="small">The reply will open your mail client to send to a single address.</div>
     </form>
 
-    <footer>Responses will be sent to a single address. This page uses mailto: (your mail client) to send — no server is required.</footer>
+    <form id="noForm" class="hidden" onsubmit="return false;" aria-live="polite">
+      <label style="margin-top:12px">
+        Optional message
+        <textarea id="noMsg" placeholder="Sorry, not available — maybe another time." rows="3"></textarea>
+      </label>
+      <div class="controls">
+        <button id="sendNo">Send</button>
+        <button id="backNo" class="ghost">Back</button>
+      </div>
+      <div class="small">The reply will open your mail client to send to a single address.</div>
+    </form>
+
   </main>
 
   <script>
-    // Hardcoded organiser email (single recipient)
-    const ORGANISER_EMAIL = 'rafaelllaban1@gmail.com';
+    // Single organiser email (hardcoded as requested)
+    const ORGANISER = 'rafaelllaban1@gmail.com';
 
-    // Elements
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
     const step1 = document.getElementById('step1');
-    const step2yes = document.getElementById('step2-yes');
-    const step2no = document.getElementById('step2-no');
-    const step3 = document.getElementById('step3');
-    const step4 = document.getElementById('step4');
+    const yesForm = document.getElementById('yesForm');
+    const noForm = document.getElementById('noForm');
+    const backYes = document.getElementById('backYes');
+    const backNo = document.getElementById('backNo');
+    const sendYes = document.getElementById('sendYes');
+    const sendNo = document.getElementById('sendNo');
 
-    // Step navigation
-    function show(step){[step1,step2yes,step2no,step3,step4].forEach(s=>s.classList.remove('active')); step.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'})}
+    function show(el){ step1.classList.add('hidden'); yesForm.classList.add('hidden'); noForm.classList.add('hidden'); el.classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}) }
+    function showStart(){ step1.classList.remove('hidden'); yesForm.classList.add('hidden'); noForm.classList.add('hidden'); window.scrollTo({top:0,behavior:'smooth'}) }
 
-    document.getElementById('btnYes').addEventListener('click', ()=> show(step2yes));
-    document.getElementById('btnNo').addEventListener('click', ()=> show(step2no));
+    yesBtn.addEventListener('click', ()=> show(yesForm));
+    noBtn.addEventListener('click', ()=> show(noForm));
+    backYes.addEventListener('click', showStart);
+    backNo.addEventListener('click', showStart);
 
-    document.getElementById('back1a').addEventListener('click', ()=> show(step1));
-    document.getElementById('back1b').addEventListener('click', ()=> show(step1));
-    document.getElementById('back2').addEventListener('click', ()=> show(step2yes));
-    document.getElementById('back3').addEventListener('click', ()=> show(step3));
+    function pickTime(){ const r = document.querySelector('input[name="time"]:checked'); return r ? r.value : '' }
 
-    // Show/hide custom time input when radio Custom chosen
-    const radios = document.querySelectorAll('input[name="choice"]');
-    radios.forEach(r => r.addEventListener('change', ()=>{
-      document.getElementById('customTimeWrap').style.display = (document.querySelector('input[name="choice"]:checked').value === 'Custom') ? 'block':'none';
-    }));
-
-    // If the user chooses Next from Yes -> go to where
-    document.getElementById('toWhereYes').addEventListener('click', ()=> show(step3));
-
-    // If user clicks send while No -> open mail client to ORGANISER_EMAIL
-    document.getElementById('sendNo').addEventListener('click', ()=>{
-      const name = document.getElementById('visitorName').value.trim();
-      const message = document.getElementById('noMessage').value.trim();
-      const bodyLines = [];
-      bodyLines.push(name ? `Name: ${name}` : 'Name: (not provided)');
-      bodyLines.push('Availability: No');
-      if(message) bodyLines.push('\nMessage:\n' + message);
-      bodyLines.push('\nReceived at: ' + new Date().toISOString());
-      bodyLines.push('User agent: ' + navigator.userAgent);
-      const subject = 'Invitation response: Not available';
-      const mailto = `mailto:${encodeURIComponent(ORGANISER_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+    sendYes.addEventListener('click', ()=>{
+      const time = pickTime();
+      const meet = document.getElementById('meet').value.trim();
+      if(!meet){ alert('Please enter where we can meet.'); document.getElementById('meet').focus(); return }
+      const body = [];
+      body.push('Availability: Yes');
+      body.push('Chosen time: ' + time);
+      body.push('Where: ' + meet);
+      body.push('Sent at: ' + new Date().toISOString());
+      body.push('User agent: ' + navigator.userAgent);
+      const subject = 'Invitation response: Yes';
+      const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.join('\n'))}`;
       window.location.href = mailto;
     });
 
-    // Move from Step3 to Summary
-    document.getElementById('toSummary').addEventListener('click', ()=>{
-      const choiceEl = document.querySelector('input[name="choice"]:checked');
-      const choice = choiceEl ? choiceEl.value : '';
-      const custom = document.getElementById('customTime').value.trim();
-      const chosen = choice === 'Custom' ? (custom || '(custom time not provided)') : choice;
-      const address = document.getElementById('meetAddress').value.trim() || '(no address provided)';
-      const name = document.getElementById('visitorName').value.trim() || '(not provided)';
-      const includeEmail = document.getElementById('includeVisitorEmail').checked;
-      const visitorEmail = document.getElementById('visitorEmail').value.trim();
-
-      const lines = [];
-      lines.push(`Name: ${name}`);
-      lines.push(`Availability: Yes`);
-      lines.push(`Chosen option/time: ${chosen}`);
-      lines.push(`Where to meet: ${address}`);
-      if(includeEmail && visitorEmail) lines.push(`Visitor email: ${visitorEmail}`);
-      lines.push('\nReceived at: ' + new Date().toISOString());
-      lines.push('User agent: ' + navigator.userAgent);
-
-      document.getElementById('summary').textContent = lines.join('\n');
-      show(step4);
-    });
-
-    // Send final response (mailto to ORGANISER_EMAIL)
-    document.getElementById('sendResponse').addEventListener('click', ()=>{
-      const summaryText = document.getElementById('summary').textContent;
-      const subject = 'Invitation response';
-      const mailto = `mailto:${encodeURIComponent(ORGANISER_EMAIL)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summaryText)}`;
+    sendNo.addEventListener('click', ()=>{
+      const msg = document.getElementById('noMsg').value.trim();
+      const body = [];
+      body.push('Availability: No');
+      if(msg) body.push('\nMessage:\n' + msg);
+      body.push('Sent at: ' + new Date().toISOString());
+      body.push('User agent: ' + navigator.userAgent);
+      const subject = 'Invitation response: No';
+      const mailto = `mailto:${encodeURIComponent(ORGANISER)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.join('\n'))}`;
       window.location.href = mailto;
     });
 
-    // Accessibility: pressing enter on the yes/no buttons
-    ['btnYes','btnNo'].forEach(id=>{document.getElementById(id).addEventListener('keyup', e=>{ if(e.key==='Enter') document.getElementById(id).click() })});
-
-    // hide visitorEmail unless include checked
-    const includeEl = document.getElementById('includeVisitorEmail');
-    const visitorEmailEl = document.getElementById('visitorEmail');
-    visitorEmailEl.style.display = 'none';
-    includeEl.addEventListener('change', ()=>{
-      visitorEmailEl.style.display = includeEl.checked ? 'block' : 'none';
-    });
-
-    // Small enhancement: pressing Esc from any step returns to step1
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape') show(step1) });
-
+    // Allow keyboard Enter on main buttons
+    [yesBtn, noBtn].forEach(b=> b.addEventListener('keyup', e=> { if(e.key === 'Enter') b.click() }))
   </script>
 </body>
 </html>
